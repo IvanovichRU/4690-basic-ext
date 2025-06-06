@@ -1,0 +1,25 @@
+{
+  "name": "4690-basic",
+  "displayName": "4690 BASIC",
+  "description": "IBM 4690 BASIC Language Support",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.100.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "languages": [{
+      "id": "4690basic",
+      "aliases": ["4690 BASIC", "4690basic"],
+      "extensions": [".BAS", ".J86"],
+      "configuration": "./language-configuration.json"
+    }],
+    "grammars": [{
+      "language": "4690basic",
+      "scopeName": "source.4690basic",
+      "path": "./syntaxes/4690basic.tmLanguage.json"
+    }]
+  }
+}

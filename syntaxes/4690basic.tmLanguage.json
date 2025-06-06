@@ -1,0 +1,368 @@
+{
+	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+	"name": "4690 BASIC",
+	"patterns": [
+		{
+			"include": "#single-line-function-decl"
+		},
+		{
+			"include": "#function-decl"
+		},
+		{
+			"include": "#math-function"
+		},
+		{
+			"include": "#string-function"
+		},
+		{
+			"include": "#keywords"
+		},
+		{
+			"include": "#comments"
+		},
+		{
+			"include": "#strings"
+		},
+		{
+			"include": "#stmt-w-parameters"
+		},
+		{
+			"include": "#access-stmt"
+		},
+		{
+			"include": "#dim-stmt"
+		}
+	],
+	"repository": {
+		"function-decl": {
+			"patterns": [
+				{
+					"name": "meta.function",
+					"begin": "\\b(FUNCTION|DEF)\\b\\s+(?!.*=)",
+					"beginCaptures": {
+						"0": {
+							"name": "storage.type.function"
+						}
+					},
+					"patterns": [
+						{
+							"name": "entity.name.function",
+							"match": "(\\?|[a-zA-Z])([a-zA-Z0-9#.]*)[\\$#%]?"
+						},
+						{
+							"include": "#parameter-list"
+						}
+					],
+					"end": "\\s*(EXTERNAL|PUBLIC)?\\s",
+					"endCaptures": {
+						"0": {
+							"name": "storage.modifier"
+						}
+					}
+				}
+			]
+		},
+		"single-line-function-decl": {
+			"patterns": [
+				{
+					"name": "meta.function.single",
+					"begin": "\\b(FUNCTION|DEF)\\b\\s+(?=.*=)",
+					"beginCaptures": {
+						"0": {
+							"name": "storage.type.function"
+						}
+					},
+					"patterns": [
+						{
+							"name": "entity.name.function",
+							"match": "(\\?|[a-zA-Z])([a-zA-Z0-9#.]*)[\\$#%]?"
+						},
+						{
+							"include": "#parameter-list"
+						},
+						{
+							"name": "keyword.operator.equals",
+							"match": "\\s+="
+						}
+					],
+					"end": "$|REM\\b|!"
+				}
+			]
+		},
+		"data-decl": {
+			"patterns": [
+				{
+					"name": "storage.type",
+					"match": "INTEGER[\\*1|\\*2\\*4]?"
+				}
+			]
+		},
+		"parameter-list": {
+			"name": "meta.parameters",
+			"begin": "\\(",
+			"beginCaptures": {
+				"0": {
+					"name": "punctuation.definition.parameters.begin"
+				}
+			},
+			"end": "\\)",
+			"endCaptures": {
+				"0": {
+					"name": "punctuation.definition.parameters.end"
+				}
+			},
+			"patterns": [
+				{
+					"include": "#single-param"
+				},
+				{
+					"name": "punctuation.separator.parameter",
+					"match": ","
+				},
+				{
+					"match": "\\s+",
+					"name": "text.whitespace"
+				}
+			]
+		},
+		"single-param": {
+			"patterns": [
+				{
+					"name": "variable.parameter",
+					"match": "(\\?|[a-zA-Z])([a-zA-Z0-9#.]*)[\\$#%]?"
+				}
+			]
+		},
+		"math-function": {
+			"begin": "\\b(ABS|CHR\\$|FLOAT|INT%?|MOD|PEEK|SGN|SHIFT|STR\\$|TAB)\\s*\\(",
+			"beginCaptures": {
+				"1": { "name": "support.function.arithmetic" },
+				"0": { "name": "meta.function-call.begin" }
+			},
+			"patterns": [
+				{
+					"include": "#numeric-expression"
+				},
+				{
+					"name": "punctuation.separator.parameter",
+					"match": ","
+				},
+				{
+					"name": "text.whitespace",
+					"match": "\\s+"
+				}
+			],
+			"end": "\\)",
+			"endCaptures": {
+				"0": { "name": "punctuation.parameters.end" }
+			}
+		},
+		"numeric-expression": {
+			"name": "meta.expression.numeric",
+			"patterns": [
+				{
+					"include": "#number-literal"
+				},
+				{
+					"include": "#arithmetic-operator"
+				},
+				{
+					"name": "variable.name",
+					"match": "(\\?|[a-zA-Z])([a-zA-Z0-9#.]*)%?"
+				},
+				{
+					"match": "\\s+",
+					"name": "text.whitespace"
+				}
+			]
+		},
+		"identifier": {
+			"patterns": [
+				{
+					"name": "variable.name",
+					"match": "(\\?|[a-zA-Z])([a-zA-Z0-9#.]*)[\\$#%]?"
+				}
+			]
+		},
+		"number-literal": {
+			"patterns": [
+				{
+					"name": "constant.numeric",
+					"match": "([+-]?[0-9.]+)(E[+-]?[0-9]+)?"
+				}
+			]
+		},
+		"arithmetic-operator": {
+			"name": "keyword.operator.arithmetic",
+			"match": "[\\+-\\/\\^\\*]"
+		},
+		"string-operator": {
+			"name": "keyword.operator",
+			"match": "[+]"
+		},
+		"string-function": {
+			"begin": "\\b(ASC|LEN|PACK\\$|TRANSLATE\\$|UCASE\\$|UNPACK$|VAL)\\s*\\(",
+			"beginCaptures": {
+				"1": { "name": "support.function.string" },
+				"0": { "name": "meta.function-call.begin" }
+			},
+			"patterns": [
+				{
+					"include": "#string-expression"
+				},
+				{
+					"name": "punctuation.separator.parameter",
+					"match": ","
+				},
+				{
+					"name": "text.whitespace",
+					"match": "\\s+"
+				}
+			],
+			"end": "\\)",
+			"endCaptures": {
+				"0": { "name": "punctuation.parameters.end" }
+			}
+		},
+		"string-expression": {
+			"name": "meta.expression.string",
+			"patterns": [
+				{
+					"include": "#strings"
+				},
+				{
+					"include": "#string-operator"
+				},
+				{
+					"include": "#identifier"
+				},
+				{
+					"name": "\\s+",
+					"match": "text.whitespace"
+				}
+			]
+		},
+		"keywords": {
+			"patterns": [
+				{
+					"name": "keyword.control",
+					"match": "\\b(GOSUB|RETURN|GOTO|IF|WHILE|WEND|FOR|NEXT|ON|STOP|RANDOMIZE|CHAIN|COMMON)\\b"
+				},
+				{
+					"name": "support.function",
+					"match": "\\b(READ|INCLUDE)\\b"
+				}
+			]
+		},
+		"comments": {
+			"patterns": [
+				{
+					"name": "comment.line",
+					"match": "!.*|REM.*|REMARK.*"
+				}
+			]
+		},
+		"strings": {
+			"name": "string.quoted.double.4690basic",
+			"begin": "\"",
+			"end": "\"",
+			"patterns": [
+				{
+					"name": "constant.character.escape.4690basic",
+					"match": "\\\\."
+				}
+			]
+		},
+		"single-stmts": {
+			"name": "support.function",
+			"match": "(COMMAND$|CONCHAR%|CONSOLE|DATE$)"
+		},
+		"stmt-w-parameters": {
+			"begin": "(ASSIGNKEY|CHDIR|COMMON|CLEARS|DATA|DELETE|DELREC|GOSUB|GOTO|INPUT( LINE)?|MKDIR|NEXT|POINT|POKE|PUT|PUTLONG|READ|READ MATRIX|RESUME|RMDIR|USE|WAIT)",
+			"beginCaptures": {
+				"0": { "name": "keyword.other" }
+			},
+			"patterns": [
+				{
+					"include": "#io-session"
+				},
+				{
+					"include": "#string-expression"
+				},
+				{
+					"include": "#numeric-expression"
+				},
+				{
+					"include": "#identifier"
+				},
+				{
+					"name": "punctuation.separator.parameter",
+					"match": ","
+				},
+				{
+					"name": "punctuation.separator.option",
+					"match": ";"
+				},
+				{
+					"match": "\\s+",
+					"name": "text.whitespace"
+				}
+			],
+			"end": "$"
+		},
+		"io-session": {
+			"name": "constant.language",
+			"match": "\\d"
+		},
+		"access-stmt": {
+			"match": "(ACCESS)\\s+((NOREAD|NOWRITE|NODEL)(\\s*,\\s*(NOREAD|NOWRITE|NODEL)){0,2})",
+			"captures": {
+				"1": { "name": "support.function" },
+				"2": { "name": "constant.language"}
+			}
+		},
+		"dim-stmt": {
+			"begin": "DIM",
+			"beginCaptures": {
+				"0": { "name": "keyword.operator" }
+			},
+			"patterns": [
+				{
+					"include": "#identifier"
+				},
+				{
+					"include": "#dim-subscript"
+				}
+			],
+			"end": "\\)|$"
+		},
+		"dim-subscript": {
+			"begin": "\\(",
+			"beginCaptures": {
+				"0": { "name": "meta.function-call.begin" }
+			},
+			"patterns": [
+				{
+					"name": "constant.numeric",
+					"match": "\\d"
+				},
+				{
+					"include": "#identifier"
+				},
+				{
+					"name": "punctuation.separator.parameter",
+					"match": ","
+				},
+				{
+					"name": "text.whitespace",
+					"match": "\\s+"
+				}
+			],
+			"end": "\\)",
+			"endCaptures": {
+				"0": { "name": "punctuation.parameters.end" }
+			}
+		}
+	},
+	"scopeName": "source.4690basic"
+}

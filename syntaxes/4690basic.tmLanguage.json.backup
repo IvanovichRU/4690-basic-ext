@@ -1,0 +1,77 @@
+{
+	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+	"name": "4690 BASIC",
+	"patterns": [
+		{
+			"include": "#keywords"
+		},
+		{
+			"include": "#func-signature"
+		},
+		{
+			"include": "#comments"
+		},
+		{
+			"include": "#identifier"
+		}
+	],
+	"repository": {
+		"func-signature": {
+			"name": "function.definition",
+			"patterns": [
+				{
+					"include": "#func-storage"
+				},
+				{
+					"name": "entity.name.function",
+					"include": "#identifier"
+				},
+				{
+					"name": "variable.parameter",
+					"begin": "\\(",
+					"end": "\\)"
+				}
+			]
+		},
+		"func-storage": {
+			"patterns": [
+				{
+					"name": "storage.type.function",
+					"match": "(FUNCTION|SUB)"
+				}
+			]
+		},
+		"keywords": {
+			"patterns": [
+				{
+					"name": "keyword.control",
+					"match": "\\b(GOSUB|RETURN|GOTO|IF|WHILE|WEND|FOR|NEXT|ON|STOP|RANDOMIZE|CHAIN|COMMON)\\b"
+				},
+				{
+					"name": "support.function",
+					"match": "\\b(READ|INCLUDE)\\b"
+				}
+			]
+		},
+		"comments": {
+			"patterns": [
+				{
+					"name": "comment.line",
+					"match": "(!.*)|REM.*|REMARK.*"
+				}
+			]
+		},
+		"strings": {
+			"name": "string.quoted.double.4690basic",
+			"begin": "\"",
+			"end": "\"",
+			"patterns": [
+				{
+					"name": "constant.character.escape.4690basic",
+					"match": "\\\\."
+				}
+			]
+		}
+	},
+	"scopeName": "source.4690basic"
+}
