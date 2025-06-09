@@ -3,10 +3,19 @@
 	"name": "4690 BASIC",
 	"patterns": [
 		{
+			"include": "#comments"
+		},
+		{
 			"include": "#single-line-function-decl"
 		},
 		{
 			"include": "#function-decl"
+		},
+		{
+			"include": "#subroutine-decl"
+		},
+		{
+			"include": "#function-storage-modifier"
 		},
 		{
 			"include": "#math-function"
@@ -16,9 +25,6 @@
 		},
 		{
 			"include": "#keywords"
-		},
-		{
-			"include": "#comments"
 		},
 		{
 			"include": "#strings"
@@ -31,34 +37,57 @@
 		},
 		{
 			"include": "#dim-stmt"
+		},
+		{
+			"include": "#compiler-directives"
+		},
+		{
+			"include": "#integer-decl"
+		},
+		{
+			"include": "#string-decl"
+		},
+		{
+			"include": "#on-error"
 		}
 	],
 	"repository": {
 		"function-decl": {
+			"name": "meta.function",
+			"begin": "\\b(FUNCTION|function|DEF|def)\\s+((\\?|[a-zA-Z])([a-zA-Z0-9#.]*)[\\$#%]?)",
+			"beginCaptures": {
+				"1": { "name": "storage.type.function" },
+				"2": { "name": "entity.name.function" }
+			},
 			"patterns": [
 				{
-					"name": "meta.function",
-					"begin": "\\b(FUNCTION|DEF)\\b\\s+(?!.*=)",
-					"beginCaptures": {
-						"0": {
-							"name": "storage.type.function"
-						}
-					},
-					"patterns": [
-						{
-							"name": "entity.name.function",
-							"match": "(\\?|[a-zA-Z])([a-zA-Z0-9#.]*)[\\$#%]?"
-						},
-						{
-							"include": "#parameter-list"
-						}
-					],
-					"end": "\\s*(EXTERNAL|PUBLIC)?\\s",
-					"endCaptures": {
-						"0": {
-							"name": "storage.modifier"
-						}
-					}
+					"include": "#parameter-list"
+				},
+				{
+					"name": "storage.modifier",
+					"match": "\\b(EXTERNAL|external|PUBLIC|public)\\b"
+				},
+				{
+					"include": "#scope-body"
+				}
+			],
+			"end": "FEND|fend|END FUNCTION|end function",
+			"endCaptures": {
+				"0": {
+					"name": "storage.modifier"
+				}
+			}
+		},
+		"scope-body": {
+			"patterns": [
+				{
+					"include": "#integer-decl"
+				},
+				{
+					"include": "#string-decl"
+				},
+				{
+					"include": "#if-statement-start"
 				}
 			]
 		},
@@ -89,13 +118,69 @@
 				}
 			]
 		},
-		"data-decl": {
+		"integer-decl": {
+			"begin": "(INTEGER|integer)((\\*1)|\\*2|\\*4)?",
+			"beginCaptures": {
+				"0": {
+					"name": "storage.type"
+				}
+			},
 			"patterns": [
 				{
-					"name": "storage.type",
-					"match": "INTEGER[\\*1|\\*2\\*4]?"
+					"name": "support.type",
+					"match": "(\\?|[a-zA-Z])([a-zA-Z0-9#.]*)[\\$#%]?"
+				},
+				{
+					"name": "punctuation.separator.parameter",
+					"match": ","
+				},
+				{
+					"match": "\\s+",
+					"name": "text.whitespace"
+				},
+				{
+					"match": "\\\\(.*)$",
+					"captures": {
+						"1": { "name": "comment" }
+					}
 				}
-			]
+			],
+			"end": "(?<!\\\\.*?)\\n|(!.*)",
+			"endCaptures": {
+				"1": { "name": "comment" }
+			}
+		},
+		"string-decl": {
+			"begin": "STRING|string",
+			"beginCaptures": {
+				"0": {
+					"name": "storage.type"
+				}
+			},
+			"patterns": [
+				{
+					"name": "support.type",
+					"match": "(\\?|[a-zA-Z])([a-zA-Z0-9#.]*)[\\$#%]?"
+				},
+				{
+					"name": "punctuation.separator.parameter",
+					"match": ","
+				},
+				{
+					"match": "\\s+",
+					"name": "text.whitespace"
+				},
+				{
+					"match": "\\\\(.*)$",
+					"captures": {
+						"1": { "name": "comment" }
+					}
+				}
+			],
+			"end": "(?<!\\\\.*?)\\n|(!.*)",
+			"endCaptures": {
+				"1": { "name": "comment" }
+			}
 		},
 		"parameter-list": {
 			"name": "meta.parameters",
@@ -133,11 +218,41 @@
 				}
 			]
 		},
+		"subroutine-decl": {
+			"name": "meta.subroutine",
+			"begin": "\\b(SUB|sub)\\s+((\\?|[a-zA-Z])([a-zA-Z0-9#.]*)[\\$#%]?)",
+			"beginCaptures": {
+				"1": { "name": "storage.type.function" },
+				"2": { "name": "entity.name.function" }
+			},
+			"patterns": [
+				{
+					"include": "#parameter-list"
+				},
+				{
+					"name": "storage.modifier",
+					"match": "\\b(EXTERNAL|external|PUBLIC|public)\\b"
+				},
+				{
+					"include": "#scope-body"
+				}
+			],
+			"end": "END SUB|end sub",
+			"endCaptures": {
+				"0": {
+					"name": "storage.modifier"
+				}
+			}
+		},
 		"math-function": {
 			"begin": "\\b(ABS|CHR\\$|FLOAT|INT%?|MOD|PEEK|SGN|SHIFT|STR\\$|TAB)\\s*\\(",
 			"beginCaptures": {
-				"1": { "name": "support.function.arithmetic" },
-				"0": { "name": "meta.function-call.begin" }
+				"1": {
+					"name": "support.function.arithmetic"
+				},
+				"0": {
+					"name": "meta.function-call.begin"
+				}
 			},
 			"patterns": [
 				{
@@ -154,7 +269,9 @@
 			],
 			"end": "\\)",
 			"endCaptures": {
-				"0": { "name": "punctuation.parameters.end" }
+				"0": {
+					"name": "punctuation.parameters.end"
+				}
 			}
 		},
 		"numeric-expression": {
@@ -196,6 +313,14 @@
 			"name": "keyword.operator.arithmetic",
 			"match": "[\\+-\\/\\^\\*]"
 		},
+		"relational-operator": {
+			"name": "keyword.operator.relational",
+			"match": "<=|<>|<|=>|>|=|LT|LE|GT|GE|EQ|NE"
+		},
+		"logical-operator": {
+			"name": "keyword.operator.logical",
+			"match": "NOT|AND|OR|XOR"
+		},
 		"string-operator": {
 			"name": "keyword.operator",
 			"match": "[+]"
@@ -203,8 +328,12 @@
 		"string-function": {
 			"begin": "\\b(ASC|LEN|PACK\\$|TRANSLATE\\$|UCASE\\$|UNPACK$|VAL)\\s*\\(",
 			"beginCaptures": {
-				"1": { "name": "support.function.string" },
-				"0": { "name": "meta.function-call.begin" }
+				"1": {
+					"name": "support.function.string"
+				},
+				"0": {
+					"name": "meta.function-call.begin"
+				}
 			},
 			"patterns": [
 				{
@@ -221,7 +350,9 @@
 			],
 			"end": "\\)",
 			"endCaptures": {
-				"0": { "name": "punctuation.parameters.end" }
+				"0": {
+					"name": "punctuation.parameters.end"
+				}
 			}
 		},
 		"string-expression": {
@@ -242,15 +373,82 @@
 				}
 			]
 		},
+		"logical-expression": {
+			"name": "meta.expression.logical",
+			"patterns": [
+				{
+					"include": "#strings"
+				},
+				{
+					"include": "#logical-operator"
+				},
+				{
+					"include": "#identifier"
+				},
+				{
+					"include": "#number-literal"
+				},
+				{
+					"name": "variable.name",
+					"match": "(\\?|[a-zA-Z])([a-zA-Z0-9#.]*)%?"
+				},
+				{
+					"name": "\\s+",
+					"match": "text.whitespace"
+				}
+			]
+		},
+		"relational-expression": {
+			"name": "meta.expression.relational",
+			"patterns": [
+				{
+					"include": "#strings"
+				},
+				{
+					"include": "#relational-operator"
+				},
+				{
+					"include": "#identifier"
+				},
+				{
+					"include": "#number-literal"
+				},
+				{
+					"name": "variable.name",
+					"match": "(\\?|[a-zA-Z])([a-zA-Z0-9#.]*)%?"
+				},
+				{
+					"name": "\\s+",
+					"match": "text.whitespace"
+				}
+			]
+		},
+		"general-expression": {
+			"name": "meta.expression",
+			"patterns": [
+				{
+					"include": "#numeric-expression"
+				},
+				{
+					"include": "#string-expression"
+				},
+				{
+					"include": "#logical-expression"
+				},
+				{
+					"include": "#relational-expression"
+				}
+			]
+		},
 		"keywords": {
 			"patterns": [
 				{
 					"name": "keyword.control",
-					"match": "\\b(GOSUB|RETURN|GOTO|IF|WHILE|WEND|FOR|NEXT|ON|STOP|RANDOMIZE|CHAIN|COMMON)\\b"
+					"match": "\\b(GOSUB|gosub|RETURN|return|GOTO|goto|WHILE|while|WEND|wend|FOR|for|NEXT|next|ON|on|ERROR|error|STOP|stop|RANDOMIZE|randomize|CHAIN|chain|COMMON|common)\\b"
 				},
 				{
 					"name": "support.function",
-					"match": "\\b(READ|INCLUDE)\\b"
+					"match": "\\b(READ|read)\\b"
 				}
 			]
 		},
@@ -280,7 +478,9 @@
 		"stmt-w-parameters": {
 			"begin": "(ASSIGNKEY|CHDIR|COMMON|CLEARS|DATA|DELETE|DELREC|GOSUB|GOTO|INPUT( LINE)?|MKDIR|NEXT|POINT|POKE|PUT|PUTLONG|READ|READ MATRIX|RESUME|RMDIR|USE|WAIT)",
 			"beginCaptures": {
-				"0": { "name": "keyword.other" }
+				"0": {
+					"name": "keyword.other"
+				}
 			},
 			"patterns": [
 				{
@@ -317,14 +517,20 @@
 		"access-stmt": {
 			"match": "(ACCESS)\\s+((NOREAD|NOWRITE|NODEL)(\\s*,\\s*(NOREAD|NOWRITE|NODEL)){0,2})",
 			"captures": {
-				"1": { "name": "support.function" },
-				"2": { "name": "constant.language"}
+				"1": {
+					"name": "support.function"
+				},
+				"2": {
+					"name": "constant.language"
+				}
 			}
 		},
 		"dim-stmt": {
 			"begin": "DIM",
 			"beginCaptures": {
-				"0": { "name": "keyword.operator" }
+				"0": {
+					"name": "keyword.operator"
+				}
 			},
 			"patterns": [
 				{
@@ -339,7 +545,9 @@
 		"dim-subscript": {
 			"begin": "\\(",
 			"beginCaptures": {
-				"0": { "name": "meta.function-call.begin" }
+				"0": {
+					"name": "meta.function-call.begin"
+				}
 			},
 			"patterns": [
 				{
@@ -360,7 +568,39 @@
 			],
 			"end": "\\)",
 			"endCaptures": {
-				"0": { "name": "punctuation.parameters.end" }
+				"0": {
+					"name": "punctuation.parameters.end"
+				}
+			}
+		},
+		"compiler-directives": {
+			"name": "keyword.other",
+			"match": "(%)(INCLUDE|include|DEBUG|debug|ENVIRON|environ|NOLIST|nolist|LIST|list|EJECT|eject|PAGE|page)\\s+([^!\\r\\n]*)",
+			"captures": {
+				"1": {
+					"name": "keyword.operator"
+				},
+				"2": {
+					"name": "keyword.other"
+				},
+				"3": {
+					"name": "constant.numeric"
+				}
+			}
+		},
+		"if-statement-start": {
+			"begin": "(IF|if)",
+			"beginCaptures": {
+				"0": { "name": "keyword.control" }
+			},
+			"patterns": [
+				{
+					"include": "#general-expression"
+				}
+			],
+			"end": "THEN|then",
+			"endCaptures": {
+				"0": { "name": "keyword.control" }
 			}
 		}
 	},
